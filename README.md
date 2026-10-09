@@ -47,7 +47,7 @@ This project follows the **CRISP-DM** framework across six phases: Business Unde
 | `GHB_J.XPT` | Laboratory — HbA1c (target variable) |
 | `DXX_J.XPT` | DXA body composition (regional lean mass, fat mass) |
 
-- **Final sample:** 3,199 adult participants after joining on `SEQN` and dropping rows with missing HbA1c
+- **Final sample:** 1,376 participants after joining on `SEQN` and dropping rows with missing HbA1c
 - **Target variable:** `LBXGH` — HbA1c (%) from glycohemoglobin file
 
 ---
@@ -138,7 +138,7 @@ K-Means (k=4) was applied to body composition features to identify distinct meta
 Optimal k was selected using the elbow method on within-cluster sum of squares (WCSS).
 
 ### PCA — Dimensionality Reduction
-Principal Component Analysis was applied to the 6 body measurement variables:
+Principal Component Analysis was applied to the 5 body measurement variables:
 - **3 components explain 93% of total variance**
 - Used to visualize cluster separation and confirm feature structure
 
@@ -232,7 +232,7 @@ jupyter notebook BAX_452_Biological_Age_and_DXA_Study_v2.ipynb
 - **Waist circumference** is the strongest single predictor of elevated HbA1c
 - Removing multicollinear features (weight, height) via VIF analysis improved model stability
 - K-Means clustering reveals 4 clinically distinct metabolic risk phenotypes that complement regression predictions
-- Ridge regularization outperforms OLS on generalization while maintaining interpretability for clinical deployment
+- Ridge matched OLS while adding regularization
 
 ---
 
