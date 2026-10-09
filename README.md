@@ -46,8 +46,9 @@ This project follows the **CRISP-DM** framework across six phases: Business Unde
 | `BMX_J.XPT` | Body measurements (BMI, waist circumference, height, weight) |
 | `GHB_J.XPT` | Laboratory — HbA1c (target variable) |
 | `DXX_J.XPT` | DXA body composition (regional lean mass, fat mass) |
+| `GLU_J.XPT` | Laboratory — fasting plasma glucose (fasting subsample) |
 
-- **Final sample:** 1,376 participants after joining on `SEQN` and dropping rows with missing HbA1c
+- **Final sample:** 1,376 participants after joining all five files on `SEQN` and dropping incomplete rows (the fasting-glucose subsample is the main limiting factor)
 - **Target variable:** `LBXGH` — HbA1c (%) from glycohemoglobin file
 
 ---
@@ -99,7 +100,7 @@ Variance Inflation Factor (VIF) analysis identified severe multicollinearity:
 
 ## Models & Results
 
-Seven models were trained and evaluated on an 80/20 train-test split. All continuous features were standardized (zero mean, unit variance) before modeling.
+Seven models were trained and evaluated on an 80/20 train-test split. Features were standardized (zero mean, unit variance) for the distance- and gradient-based models (KNN and Neural Network).
 
 | Model | Test R² | RMSE | MAE | AIC |
 |-------|---------|------|-----|-----|
@@ -108,8 +109,8 @@ Seven models were trained and evaluated on an 80/20 train-test split. All contin
 | Ridge Regression ✅ | 0.1762 | 0.7526 | 0.4301 | -146.88 |
 | OLS Regression | 0.1762 | 0.7526 | 0.4301 | 2783.83 |
 | Lasso Regression | 0.1632 | 0.7586 | 0.4091 | -142.54 |
+| Gradient Boosting | 0.1095 | 0.7825 | 0.4165 | 464.62 |
 | Random Forest | 0.1049 | 0.7845 | 0.4377 | — |
-| Gradient Boosting | 0.0949 | 0.7889 | 0.4202 | 469.10 |
 
 ⭐ Best performance · ✅ Selected for deployment
 
@@ -135,10 +136,10 @@ K-Means (k=4) was applied to body composition features to identify distinct meta
 | 2 | Intermediate Risk | Moderate fat and lean metrics |
 | 3 | High Body Fat | Highest fat mass, elevated HbA1c |
 
-Optimal k was selected using the elbow method on within-cluster sum of squares (WCSS).
+Clusters were compared against clinical HbA1c categories (normal / prediabetes / diabetes); agreement was low (Adjusted Rand Index = 0.02), so the clusters describe body-composition profiles rather than diabetes status.
 
 ### PCA — Dimensionality Reduction
-Principal Component Analysis was applied to the 5 body measurement variables:
+Principal Component Analysis was applied to 6 standardized variables (age, sex, BMI, waist, weight, height):
 - **3 components explain 93% of total variance**
 - Used to visualize cluster separation and confirm feature structure
 
@@ -152,7 +153,7 @@ SHAP (SHapley Additive exPlanations) values were computed for the Gradient Boost
 - `waist_cm` contributed **+2.55** to the predicted HbA1c — the single most influential feature
 - High waist circumference is strongly associated with visceral adiposity and insulin resistance
 
-SHAP waterfall plots confirm that abdominal fat, not overall fat mass, drives HbA1c predictions for high-risk individuals.
+This waterfall plot suggests abdominal fat, rather than overall fat mass, drives the prediction for this high-risk individual.
 
 ---
 
@@ -179,8 +180,8 @@ pip install pandas numpy sqlalchemy psycopg2-binary statsmodels matplotlib seabo
 ### Clone the Repo
 
 ```bash
-git clone https://github.com/<your-username>/bax452-biological-age-dxa.git
-cd bax452-biological-age-dxa
+git clone https://github.com/lmpastor-boop/metabolic-health-analytics.git
+cd metabolic-health-analytics
 ```
 
 ### Environment Variables
@@ -229,9 +230,9 @@ jupyter notebook BAX_452_Biological_Age_and_DXA_Study_v2.ipynb
 ## Key Takeaways
 
 - DXA body composition features explain ~18–28% of HbA1c variance — a meaningful signal given that dietary, genetic, and medication data were excluded
-- **Waist circumference** is the strongest single predictor of elevated HbA1c
+- **Waist circumference** was the most influential feature for the highest-risk test patient (SHAP)
 - Removing multicollinear features (weight, height) via VIF analysis improved model stability
-- K-Means clustering reveals 4 clinically distinct metabolic risk phenotypes that complement regression predictions
+- K-Means clustering identifies 4 body-composition profiles; they only loosely track clinical HbA1c categories
 - Ridge matched OLS while adding regularization
 
 ---
