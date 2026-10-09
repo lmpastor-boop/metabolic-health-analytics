@@ -120,7 +120,7 @@ The **Neural Network** (MLP: 64→32 units, ReLU activation) achieved the highes
 - **Stability**: Consistent, regularized performance across validation folds
 - **Regulatory alignment**: Transparent models are preferred in healthcare risk screening contexts
 
-> **AIC (Akaike Information Criterion):** Balances model fit against complexity. Formula: `n × log(MSE) + 2k`. Lower AIC = better trade-off between accuracy and parsimony. OLS's large positive AIC (2783.83) reflects its penalization for parameter count without L2 regularization.
+> **AIC (Akaike Information Criterion):** Balances model fit against complexity. Formula: `n × log(MSE) + 2k`. Lower AIC = better trade-off between accuracy and parsimony. OLS’s AIC was computed with statsmodels’ likelihood-based formula and isn’t directly comparable to the other models’ values..
 
 ---
 
